@@ -34,6 +34,9 @@ public class Usluga {
     }
 
     public void showInfo() {
-        System.out.println("nazwa='" + nazwa + '\'' + ", cena=" + cena + ", czasTrwania=" + czasTrwania + ", typUslugi=" + typUslugi + '}');
+        System.out.println(nazwa + " | " + (int) cena + " zl | " + (int) czasTrwania + " min | " + opis);
+    }
+    public void showInfo2() {
+        System.out.println(nazwa + " | " + (int) cena + " zl | " + (int) czasTrwania + " min");
     }
 }
