@@ -1,13 +1,16 @@
 import java.util.List;
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.time.*;
+
 
 
 public class ZakladFryzjerski {
     static ArrayList<Usluga> uslugi = new ArrayList<>();
     static ArrayList<Rezerwacja> rezerwacje = new ArrayList<>();
     static ArrayList<Klient> klienci = new ArrayList<>();
+    static ArrayList<Pracownik> pracownicy = new ArrayList<>();
     static Scanner scan = new Scanner(System.in);
     public static void main(String[] args) {
 
@@ -15,7 +18,7 @@ public class ZakladFryzjerski {
 
         dodajInfo();
 
-        System.out.println("1 - Dodaj Klienta / 2 - Zrob rezerwacje / 3 - zobacz rezerwacje / 4 - pokaz uslugi / 5 - pokaz klientow / quit");
+        System.out.println("1 - Dodaj Klienta / 2 - Zrob rezerwacje / 3 - zobacz rezerwacje / 4 - pokaz uslugi / 5 - pokaz klientow / 6 - client history / 7 - report earnings / 8 - pracownicy / help / quit");
         while(true){
             System.out.print("Input: ");
             String wybor = scan.nextLine();
@@ -26,6 +29,7 @@ public class ZakladFryzjerski {
                 case("2") -> {
                     Klient klient = szukajKlient();
                     if(klient == null) break;
+                    System.out.println("Dodano klienta!");
 
                     Usluga usluga = szukajUsluga();
                     if(usluga == null) break;
@@ -36,6 +40,12 @@ public class ZakladFryzjerski {
                     Rezerwacja rezerwacja = new Rezerwacja(klient, usluga, czas);
                     rezerwacje.add(rezerwacja);
                     System.out.println("Dodano rezerwacje!");
+                }
+                case("3") -> {
+                    System.out.println("::: Lista Rezerwacji :::");
+                    for(Rezerwacja r : rezerwacje){
+                        r.showInfo();
+                    }
                 }
                 case("4") -> {
                     System.out.println("::: Lista Uslug :::");
@@ -49,14 +59,29 @@ public class ZakladFryzjerski {
                         k.showInfo();
                     }
                 }
-                case("3") -> {
-                    System.out.println("::: Lista Rezerwacji :::");
+                case("6") -> {
+                    Klient klient1 = szukajKlient();
+                    if(klient1 == null) break;
+                    System.out.println("Szukanie informacji o kliencie ...");
                     for(Rezerwacja r : rezerwacje){
-                        r.showInfo();
+                        if (r.klient.getImie().equalsIgnoreCase(klient1.getImie()) && r.klient.getNazwisko().equalsIgnoreCase(klient1.getNazwisko())){
+                            r.showInfo();
+                        }
                     }
                 }
+                case("7") -> {
+                    statistics();
+                }
+                case("8") -> {
+                    System.out.println("::: Lista Pracownikow :::");
+                    for(Pracownik p : pracownicy){
+                        p.showInfo();
+                        System.out.println(p.getHaslo());
+                    }
+                }
+
                 case("help") -> {
-                    System.out.println("1 - Dodaj Klienta / 2 - Zrob rezerwacje / 3 - zobacz rezerwacje / 4 - quit / 5 - pokaz klientow");
+                    System.out.println("1 - Dodaj Klienta / 2 - Zrob rezerwacje / 3 - zobacz rezerwacje / 4 - pokaz uslugi / 5 - pokaz klientow / help / quit");
                 }
                 case("quit") -> {
                     System.out.println("Opuszczanie programu ...");
@@ -68,6 +93,35 @@ public class ZakladFryzjerski {
 
     }
 
+    static void statistics(){
+        System.out.println("::: Yearly reports :::");
+
+        int totalMoney = 0;
+        for (Rezerwacja r : rezerwacje) {
+            totalMoney += r.usluga.getCena();
+        }
+        System.out.println("Total Earnings: " + totalMoney + " zl");
+
+        HashMap<String, Integer> hashmap = new HashMap<String, Integer>();
+        System.out.println("Lista sprzedanych uslug:"); // zmien
+        for(Usluga u : uslugi) {
+            int count = 0;
+            int subearnings = 0;
+            int index = 0;
+            for (Rezerwacja r : rezerwacje){
+                if(r.usluga.getNazwa().equalsIgnoreCase(u.getNazwa())){
+                    count++;
+                    subearnings += u.getCena();
+                }
+            }
+            hashmap.put(u.getNazwa(), subearnings);
+        }
+        for (int i = 0; i < hashmap.size(); i++) {
+//            System.out.println(count + " - " + u.getNazwa() + " (" + subearnings + " zl)");
+        }
+
+
+    }
 
     static Klient szukajKlient(){
         Klient klient = null;
@@ -89,16 +143,12 @@ public class ZakladFryzjerski {
                         klient = k;
                     }
                 }
-                if (klient != null) {
-                    System.out.println("Dodano klienta!");
-                } else {
+                if (klient == null) {
                     System.out.println("Nie ma takiego klienta, wybierz ponownie");
                 }
             } else {
                 System.out.println("Bledne formatowanie, podaj ponownie");
             }
-
-
         } return klient;
     }
 
@@ -143,15 +193,20 @@ public class ZakladFryzjerski {
                 return null;
             }
             String[] times = wybor.split(":");
-            if (times.length == 2) {
+            String temp = wybor.replace(":", "");
+            if ((times.length == 2) && (isNumeric(temp))) {
                 int godzina = Integer.parseInt(times[0]);
                 int minuty = Integer.parseInt(times[1]);
-                if (godzina >= 24 || minuty >= 60) System.out.println("Blad formatowania");
-                if (czyDostepne(godzina, minuty, usluga)){
-                    czas = LocalTime.of(godzina, minuty);
+                if (godzina < 24 && minuty < 60) {
+                    if (czyDostepne(godzina, minuty, usluga)){
+                        czas = LocalTime.of(godzina, minuty);
+                    } else {
+                        System.out.println("Nie mozna dodac, termin zajety");
+                    }
                 } else {
-                    System.out.println("Nie mozna dodac, termin zajety");
+                    System.out.println("Blad formatowania - wybierz ponownie");
                 }
+
             } else System.out.println("Bledne formatowanie - wybierz ponownie");
         } return czas;
 
@@ -254,12 +309,20 @@ public class ZakladFryzjerski {
         rezerwacje.add(new Rezerwacja(klient1, usluga7, LocalTime.of(9, 0)));
         rezerwacje.add(new Rezerwacja(klient2, usluga2, LocalTime.of(10, 0)));
         rezerwacje.add(new Rezerwacja(klient3, usluga5, LocalTime.of(12, 0)));
-//        rezerwacje.add(new Rezerwacja(klient4, usluga3, LocalTime.of(13, 30)));
-//        rezerwacje.add(new Rezerwacja(klient5, usluga1, LocalTime.of(15, 0)));
+        rezerwacje.add(new Rezerwacja(klient4, usluga3, LocalTime.of(13, 30)));
+        rezerwacje.add(new Rezerwacja(klient5, usluga1, LocalTime.of(15, 0)));
         rezerwacje.add(new Rezerwacja(klient6, usluga6, LocalTime.of(16, 30)));
         rezerwacje.add(new Rezerwacja(klient7, usluga9, LocalTime.of(17, 30)));
-//        rezerwacje.add(new Rezerwacja(klient8, usluga10, LocalTime.of(18, 0)));
-//        rezerwacje.add(new Rezerwacja(klient9, usluga8, LocalTime.of(19, 30)));
+        rezerwacje.add(new Rezerwacja(klient8, usluga10, LocalTime.of(18, 0)));
+        rezerwacje.add(new Rezerwacja(klient9, usluga8, LocalTime.of(19, 30)));
+        List<TypUslugi> l = new ArrayList<TypUslugi>();
+        l.add(TypUslugi.STRZYZENIE);
+        List<TypUslugi> l2 = new ArrayList<TypUslugi>();
+        l2.add(TypUslugi.KOLORYZACJA);
+        l2.add(TypUslugi.STYLIZACJA);
+        pracownicy.add(new Pracownik("Franek", "Pietrowicz", 53, "48537605268", l));
+        pracownicy.add(new Pracownik("Katarzyna", "Pawlak", 27, "48666621994", l2));
+        pracownicy.add(new Pracownik("Zofia", "Rutkowska", 33, "48781477302", l2));
     }
 
 
@@ -270,6 +333,12 @@ public class ZakladFryzjerski {
             }
         }
         return str.matches("[a-zA-Z]+");
+    }
+
+    static boolean isNumeric(String str){
+        for (int i = 0; i < str.length(); i++) {
+            if(Character.isDigit(str.charAt(i)) != true) return false;
+        } return true;
     }
 
     static String format(String str) {
