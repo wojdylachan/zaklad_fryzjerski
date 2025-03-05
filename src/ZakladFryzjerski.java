@@ -11,6 +11,7 @@ public class ZakladFryzjerski {
     static ArrayList<Rezerwacja> rezerwacje = new ArrayList<>();
     static ArrayList<Klient> klienci = new ArrayList<>();
     static ArrayList<Pracownik> pracownicy = new ArrayList<>();
+    static Magazyn magazyn = new Magazyn();
     static Scanner scan = new Scanner(System.in);
     public static void main(String[] args) {
 
@@ -211,6 +212,10 @@ public class ZakladFryzjerski {
         } return czas;
 
     }
+
+    static final LocalTime OPENING_TIME = LocalTime.of(9, 0);
+    static final LocalTime CLOSING_TIME = LocalTime.of(22, 0);
+
     static boolean czyDostepne(int godzina, int minuty, Usluga usluga){
         LocalTime start = LocalTime.of(godzina, minuty);
         LocalTime end = start.plusMinutes(usluga.czasTrwania);
@@ -323,6 +328,12 @@ public class ZakladFryzjerski {
         pracownicy.add(new Pracownik("Franek", "Pietrowicz", 53, "48537605268", l));
         pracownicy.add(new Pracownik("Katarzyna", "Pawlak", 27, "48666621994", l2));
         pracownicy.add(new Pracownik("Zofia", "Rutkowska", 33, "48781477302", l2));
+
+        magazyn.dodajProdukt(new Product("Szampon regenerujący", 45.99, 10, "Szampon"));
+        magazyn.dodajProdukt(new Product("Odżywka nawilżająca", 39.99, 15, "Odżywka"));
+        magazyn.dodajProdukt(new Product("Lakier do włosów", 29.99, 20, "Stylizacja"));
+        magazyn.dodajProdukt(new Product("Żel do włosów", 19.99, 25, "Stylizacja"));
+        magazyn.dodajProdukt(new Product("Maska keratynowa", 59.99, 8, "Maska"));
     }
 
 
