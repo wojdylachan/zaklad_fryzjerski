@@ -14,9 +14,8 @@ class Product {
         this.kategoria = kategoria;
     }
 
-    @Override
-    public String toString() {
-        return nazwa + " | " + kategoria + " | " + cena + " PLN | Ilość: " + ilosc;
+    public void showInfo() {
+        System.out.println(nazwa + " | " + kategoria + " | " + cena + " PLN | Ilość: " + ilosc);
     }
 }
 

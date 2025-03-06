@@ -3,6 +3,7 @@ import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.time.*;
+import java.util.*;
 
 
 
@@ -11,7 +12,8 @@ public class ZakladFryzjerski {
     static ArrayList<Rezerwacja> rezerwacje = new ArrayList<>();
     static ArrayList<Klient> klienci = new ArrayList<>();
     static ArrayList<Pracownik> pracownicy = new ArrayList<>();
-    static Magazyn magazyn = new Magazyn();
+    private static List<Product> produkty = new ArrayList<>();
+//    static Magazyn magazyn = new Magazyn();
     static Scanner scan = new Scanner(System.in);
     public static void main(String[] args) {
 
@@ -19,7 +21,7 @@ public class ZakladFryzjerski {
 
         dodajInfo();
 
-        System.out.println("1 - Dodaj Klienta / 2 - Zrob rezerwacje / 3 - zobacz rezerwacje / 4 - pokaz uslugi / 5 - pokaz klientow / 6 - client history / 7 - report earnings / 8 - pracownicy / help / quit");
+        System.out.println("1 - Dodaj Klienta / 2 - Zrob rezerwacje / 3 - zobacz rezerwacje / 4 - pokaz uslugi / 5 - pokaz klientow / 6 - client history / 7 - report earnings / 8 - pracownicy / 9 - pokaz produkty / 10 - zarzadzaj asortymentem / help / quit");
         while(true){
             System.out.print("Input: ");
             String wybor = scan.nextLine();
@@ -80,6 +82,27 @@ public class ZakladFryzjerski {
                         System.out.println(p.getHaslo());
                     }
                 }
+                case("9") -> {
+                    for(Product p : produkty){
+                        p.showInfo();
+                    }
+                }
+                case("10") -> {
+                    System.out.println("Dodaj Produkt / Usun Produkt / Zaktualizuj Ilosc / exit");
+                    boolean isTrue = true;
+                    while(isTrue){
+                        String wybor2 = scan.nextLine().trim().toLowerCase();
+                        switch(wybor2){
+                            case("dodaj") -> dodajProdukt();
+                            case("usun") -> usunProdukt();
+                            case("ilosc") -> aktualizujIlosc();
+                            case("exit") -> isTrue = false;
+                            default -> System.out.println("Bledna opcja: wybierz ponownie");
+                    }
+
+                    }
+
+                }
 
                 case("help") -> {
                     System.out.println("1 - Dodaj Klienta / 2 - Zrob rezerwacje / 3 - zobacz rezerwacje / 4 - pokaz uslugi / 5 - pokaz klientow / help / quit");
@@ -94,34 +117,108 @@ public class ZakladFryzjerski {
 
     }
 
-    static void statistics(){
-        System.out.println("::: Yearly reports :::");
+    public static void dodajProdukt(){
+        System.out.println("Podaj nazwe:");
+        String nazwa = scan.nextLine();
+        String nazwa1 = nazwa.replaceAll(" ", "");
+        while(!isAlphabetic(nazwa1)){
+            System.out.println("Podaj ponownie");
+            nazwa = scan.nextLine();
+            nazwa1 = nazwa.replaceAll(" ", "");
+        }
+        format(nazwa);
+
+        System.out.println("Podaj cene:");
+        String cena = scan.nextLine();
+        String cenaTemp = cena.replaceAll("\\.", "");
+        while (cenaTemp.isEmpty() || !cenaTemp.matches("\\d+")){
+            System.out.println("Podaj ponownie:");
+            cenaTemp = scan.nextLine().trim();
+            cenaTemp = cenaTemp.replaceAll("\\.", "");
+        } double cena2 = Double.parseDouble(cena);
+
+        System.out.println("Podaj ilosc");
+        String ilosc = scan.nextLine();
+        while (ilosc.isEmpty() || !ilosc.matches("\\d+")){
+            System.out.println("Podaj ponownie:");
+            ilosc = scan.nextLine().trim();
+        } int ilosc2 = Integer.parseInt(ilosc);
+
+        System.out.println("Podaj kategorie:");
+        String kategoria = scan.nextLine();
+        while(!isAlphabetic(kategoria)){
+            System.out.println("Podaj ponownie");
+            kategoria = scan.nextLine();
+        }
+        format(kategoria);
+
+        produkty.add(new Product(nazwa, cena2, ilosc2, kategoria));
+        System.out.println("Dodano produkt!");
+    }
+
+    public static void usunProdukt(){
+        System.out.println("Wpisz nazwe produktu:");
+        String wybor1 = scan.nextLine();
+        for(Product p : produkty){
+            if(wybor1.equalsIgnoreCase(p.nazwa)){
+                produkty.remove(p);
+                System.out.println("Produkt usuniety!");
+            }
+        }
+    }
+
+    public static void aktualizujIlosc() {
+        System.out.println("wpisz nazwe produktu:");
+        String nazwa = scan.nextLine().trim();
+        System.out.println("wpisz nowa ilosc");
+        int ilosc = scan.nextInt();
+        scan.nextLine();
+
+        for (Product p : produkty) {
+            if (p.nazwa.equalsIgnoreCase(nazwa)) {
+                p.ilosc = ilosc;
+                System.out.println("Zaktualizowano ilość!");
+                return;
+            }
+        }
+        System.out.println("Produkt nie znaleziony: " + nazwa);
+    }
+
+    static void statistics() {
+        System.out.println("::: Roczne statystyki :::");
 
         int totalMoney = 0;
         for (Rezerwacja r : rezerwacje) {
             totalMoney += r.usluga.getCena();
         }
-        System.out.println("Total Earnings: " + totalMoney + " zl");
+        System.out.println("Całkowite zarobki: " + totalMoney + " zł");
+        HashMap<String, Integer> salesCount = new HashMap<>();
+        HashMap<String, Integer> earnings = new HashMap<>();
 
-        HashMap<String, Integer> hashmap = new HashMap<String, Integer>();
-        System.out.println("Lista sprzedanych uslug:"); // zmien
-        for(Usluga u : uslugi) {
+        for (Usluga u : uslugi) {
             int count = 0;
             int subearnings = 0;
-            int index = 0;
-            for (Rezerwacja r : rezerwacje){
-                if(r.usluga.getNazwa().equalsIgnoreCase(u.getNazwa())){
+
+            for (Rezerwacja r : rezerwacje) {
+                if (r.usluga.getNazwa().equalsIgnoreCase(u.getNazwa())) {
                     count++;
                     subearnings += u.getCena();
                 }
             }
-            hashmap.put(u.getNazwa(), subearnings);
-        }
-        for (int i = 0; i < hashmap.size(); i++) {
-//            System.out.println(count + " - " + u.getNazwa() + " (" + subearnings + " zl)");
+            if (count > 0) {
+                salesCount.put(u.getNazwa(), count);
+                earnings.put(u.getNazwa(), subearnings);
+            }
         }
 
+        List<Map.Entry<String, Integer>> sortedList = new ArrayList<>(salesCount.entrySet());
+        sortedList.sort((a, b) -> b.getValue().compareTo(a.getValue()));
 
+        System.out.println("Sprzedane usługi:");
+        for (Map.Entry<String, Integer> entry : sortedList) {
+            String serviceName = entry.getKey();
+            System.out.println(entry.getValue() + "x - " + serviceName + " (" + earnings.get(serviceName) + " zł)");
+        }
     }
 
     static Klient szukajKlient(){
@@ -265,6 +362,25 @@ public class ZakladFryzjerski {
         System.out.println("Klient dodany!");
     }
 
+    static boolean isAlphabetic(String str){
+        for (int i = 0; i < str.length(); i++) {
+            if (str == null || str.isEmpty()) {
+                return false;
+            }
+        }
+        return str.matches("[a-zA-Z]+");
+    }
+
+    static boolean isNumeric(String str){
+        for (int i = 0; i < str.length(); i++) {
+            if(Character.isDigit(str.charAt(i)) != true) return false;
+        } return true;
+    }
+
+    static String format(String str) {
+        return (String.valueOf(str.charAt(0)).toUpperCase())+ (str.substring(1)).toLowerCase();
+    }
+
     static void dodajInfo() {
         Klient klient1 = new Klient("Jan", "Wojdyla", 17, "48821448632");
         Klient klient2 = new Klient("Bartosz", "Wasilkowski", 18, "48132576813");
@@ -310,6 +426,9 @@ public class ZakladFryzjerski {
         uslugi.add(usluga8);
         uslugi.add(usluga9);
         uslugi.add(usluga10);
+        uslugi.add(usluga10);
+        uslugi.add(usluga10);
+
 
         rezerwacje.add(new Rezerwacja(klient1, usluga7, LocalTime.of(9, 0)));
         rezerwacje.add(new Rezerwacja(klient2, usluga2, LocalTime.of(10, 0)));
@@ -329,31 +448,11 @@ public class ZakladFryzjerski {
         pracownicy.add(new Pracownik("Katarzyna", "Pawlak", 27, "48666621994", l2));
         pracownicy.add(new Pracownik("Zofia", "Rutkowska", 33, "48781477302", l2));
 
-        magazyn.dodajProdukt(new Product("Szampon regenerujący", 45.99, 10, "Szampon"));
-        magazyn.dodajProdukt(new Product("Odżywka nawilżająca", 39.99, 15, "Odżywka"));
-        magazyn.dodajProdukt(new Product("Lakier do włosów", 29.99, 20, "Stylizacja"));
-        magazyn.dodajProdukt(new Product("Żel do włosów", 19.99, 25, "Stylizacja"));
-        magazyn.dodajProdukt(new Product("Maska keratynowa", 59.99, 8, "Maska"));
-    }
-
-
-    static boolean isAlphabetic(String str){
-        for (int i = 0; i < str.length(); i++) {
-            if (str == null || str.isEmpty()) {
-                return false;
-            }
-        }
-        return str.matches("[a-zA-Z]+");
-    }
-
-    static boolean isNumeric(String str){
-        for (int i = 0; i < str.length(); i++) {
-            if(Character.isDigit(str.charAt(i)) != true) return false;
-        } return true;
-    }
-
-    static String format(String str) {
-        return (String.valueOf(str.charAt(0)).toUpperCase())+ (str.substring(1)).toLowerCase();
+        produkty.add(new Product("Szampon regenerujący", 45.99, 10, "Szampon"));
+        produkty.add(new Product("Odżywka nawilżająca", 39.99, 15, "Odżywka"));
+        produkty.add(new Product("Lakier do włosów", 29.99, 20, "Stylizacja"));
+        produkty.add(new Product("Żel do włosów", 19.99, 25, "Stylizacja"));
+        produkty.add(new Product("Maska keratynowa", 59.99, 8, "Maska"));
     }
 }
 
