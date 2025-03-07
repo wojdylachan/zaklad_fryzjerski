@@ -6,122 +6,234 @@ import java.time.*;
 import java.util.*;
 
 
-
 public class ZakladFryzjerski {
     static ArrayList<Usluga> uslugi = new ArrayList<>();
     static ArrayList<Rezerwacja> rezerwacje = new ArrayList<>();
     static ArrayList<Klient> klienci = new ArrayList<>();
     static ArrayList<Pracownik> pracownicy = new ArrayList<>();
-    private static List<Product> produkty = new ArrayList<>();
-//    static Magazyn magazyn = new Magazyn();
+    static List<Product> produkty = new ArrayList<>();
     static Scanner scan = new Scanner(System.in);
+
     public static void main(String[] args) {
-
-        System.out.println("Zaklad Fryzjerski - Jan Wojdyla");
-
         dodajInfo();
+        System.out.println("Zakład Fryzjerski - Jan Wojdyła");
+        System.out.println("Witam w Zakładzie Fryzjerskim!");
+        System.out.println("Czy jesteś klientem czy pracownikiem? [klient/pracownik]");
+        String klientCzyPracownik = scan.nextLine();
+        switch (klientCzyPracownik) {
+            case ("klient") -> {
+                System.out.println("Witaj, kliencie!");
+                showOptionsK();
+                while (true) {
+                    System.out.print("Input: ");
+                    String wybor = scan.nextLine();
+                    switch (wybor) {
+                        case ("1") -> {
+                            klienciGetInfo();
+                        }
+                        case ("2") -> {
+                            Klient klient = szukajKlient();
+                            if (klient == null) break;
+                            System.out.println("Dodano klienta!");
 
-        System.out.println("1 - Dodaj Klienta / 2 - Zrob rezerwacje / 3 - zobacz rezerwacje / 4 - pokaz uslugi / 5 - pokaz klientow / 6 - client history / 7 - report earnings / 8 - pracownicy / 9 - pokaz produkty / 10 - zarzadzaj asortymentem / help / quit");
-        while(true){
+                            Usluga usluga = szukajUsluga();
+                            if (usluga == null) break;
+
+                            LocalTime czas = dodajCzas(usluga);
+                            if (czas == null) break;
+
+                            Rezerwacja rezerwacja = new Rezerwacja(klient, usluga, czas);
+                            rezerwacje.add(rezerwacja);
+                            System.out.println("Dodano rezerwacje!");
+                        }
+                        case ("3") -> {
+                            System.out.println("::: Lista Rezerwacji :::");
+                            for (Rezerwacja r : rezerwacje) {
+                                r.showInfo();
+                            }
+                        }
+                        case ("4") -> {
+                            showOptionsK();
+                        }
+                        case ("5") -> {
+                            System.out.println("Opuszczanie programu ...");
+                            System.exit(0);
+                        }
+                    }
+
+                }
+            }
+            case ("pracownik") -> {
+                boolean isTrue = true;
+                while (isTrue) {
+                    String login1 = login();
+                    switch (login1) {
+                        case ("success") -> {
+                            isTrue = false;
+                        }
+                        case ("fail") -> {
+                            System.out.println("Zły email lub hasło, wpisz ponownie");
+                        }
+                        case ("exit") -> {
+                            System.out.println("Opuszczanie programu ...");
+                            System.exit(0);
+                        }
+                    }
+                }
+
+
+            }
+            default -> {
+                System.out.println("Brak opcji");
+                System.exit(0);
+            }
+
+        }
+        showOptions();
+        while (true) {
             System.out.print("Input: ");
             String wybor = scan.nextLine();
-            switch(wybor) {
-                case("1") -> {
+            switch (wybor) {
+                case ("1") -> {
                     klienciGetInfo();
                 }
-                case("2") -> {
+                case ("2") -> {
+                    dodajPracownika();
+                }
+                case ("3") -> {
                     Klient klient = szukajKlient();
-                    if(klient == null) break;
+                    if (klient == null) break;
                     System.out.println("Dodano klienta!");
 
                     Usluga usluga = szukajUsluga();
-                    if(usluga == null) break;
+                    if (usluga == null) break;
 
                     LocalTime czas = dodajCzas(usluga);
-                    if(czas == null) break;
+                    if (czas == null) break;
 
                     Rezerwacja rezerwacja = new Rezerwacja(klient, usluga, czas);
                     rezerwacje.add(rezerwacja);
                     System.out.println("Dodano rezerwacje!");
                 }
-                case("3") -> {
+                case ("4") -> {
                     System.out.println("::: Lista Rezerwacji :::");
-                    for(Rezerwacja r : rezerwacje){
+                    for (Rezerwacja r : rezerwacje) {
                         r.showInfo();
                     }
                 }
-                case("4") -> {
-                    System.out.println("::: Lista Uslug :::");
-                    for(Usluga u : uslugi){
-                        u.showInfo();
-                    }
-                }
-                case("5") -> {
+                case ("5") -> {
                     System.out.println("::: Lista Klientow :::");
-                    for(Klient k : klienci){
+                    for (Klient k : klienci) {
                         k.showInfo();
                     }
                 }
-                case("6") -> {
-                    Klient klient1 = szukajKlient();
-                    if(klient1 == null) break;
-                    System.out.println("Szukanie informacji o kliencie ...");
-                    for(Rezerwacja r : rezerwacje){
-                        if (r.klient.getImie().equalsIgnoreCase(klient1.getImie()) && r.klient.getNazwisko().equalsIgnoreCase(klient1.getNazwisko())){
-                            r.showInfo();
-                        }
+                case ("6") -> {
+                    System.out.println("::: Lista Uslug :::");
+                    for (Usluga u : uslugi) {
+                        u.showInfo();
                     }
                 }
-                case("7") -> {
-                    statistics();
+                case ("7") -> {
+                    System.out.println("::: Lista Produktow :::");
+                    for (Product p : produkty) {
+                        p.showInfo();
+                    }
                 }
-                case("8") -> {
+                case ("8") -> {
                     System.out.println("::: Lista Pracownikow :::");
-                    for(Pracownik p : pracownicy){
+                    for (Pracownik p : pracownicy) {
                         p.showInfo();
                         System.out.println(p.getHaslo());
                     }
                 }
-                case("9") -> {
-                    for(Product p : produkty){
-                        p.showInfo();
-                    }
-                }
-                case("10") -> {
-                    System.out.println("Dodaj Produkt / Usun Produkt / Zaktualizuj Ilosc / exit");
+                case ("9") -> {
+                    System.out.println("Dodaj Produkt / Usuń Produkt / Zaktualizuj Ilość [dodaj/usun/ilosc/exit]");
                     boolean isTrue = true;
-                    while(isTrue){
+                    while (isTrue) {
                         String wybor2 = scan.nextLine().trim().toLowerCase();
-                        switch(wybor2){
-                            case("dodaj") -> dodajProdukt();
-                            case("usun") -> usunProdukt();
-                            case("ilosc") -> aktualizujIlosc();
-                            case("exit") -> isTrue = false;
-                            default -> System.out.println("Bledna opcja: wybierz ponownie");
-                    }
+                        switch (wybor2) {
+                            case ("dodaj") -> dodajProdukt();
+                            case ("usun") -> usunProdukt();
+                            case ("ilosc") -> aktualizujIlosc();
+                            case ("exit") -> isTrue = false;
+                            default -> System.out.println("Błędna opcja: wybierz ponownie");
+                        }
 
                     }
 
                 }
-
-                case("help") -> {
-                    System.out.println("1 - Dodaj Klienta / 2 - Zrob rezerwacje / 3 - zobacz rezerwacje / 4 - pokaz uslugi / 5 - pokaz klientow / help / quit");
+                case ("10") -> {
+                    Klient klient1 = szukajKlient();
+                    if (klient1 == null) break;
+                    System.out.println("Szukanie informacji o kliencie ...");
+                    for (Rezerwacja r : rezerwacje) {
+                        if (r.klient.getImie().equalsIgnoreCase(klient1.getImie()) && r.klient.getNazwisko().equalsIgnoreCase(klient1.getNazwisko())) {
+                            r.showInfo();
+                        }
+                    }
                 }
-                case("quit") -> {
+                case ("11") -> {
+                    statistics();
+                }
+                case ("12") -> {
+                    showOptions();
+                }
+                case ("13") -> {
                     System.out.println("Opuszczanie programu ...");
                     System.exit(0);
                 }
-                default -> System.out.println("Blad, wybierz ponownie:");
+                default -> System.out.println("Błąd, wybierz ponownie:");
             }
         }
 
     }
 
-    public static void dodajProdukt(){
+    public static void showOptions() {
+        System.out.println("1 - Dodaj Klienta");
+        System.out.println("2 - Dodaj Pracownika");
+        System.out.println("3 - Zrób rezerwację");
+        System.out.println("4 - Zobacz rezerwacje");
+        System.out.println("5 - Pokaż klientów");
+        System.out.println("6 - Pokaż usługi");
+        System.out.println("7 - Pokaż produkty");
+        System.out.println("8 - Pokaż Pracowników");
+        System.out.println("9 - Zarządzaj asortymentem");
+        System.out.println("10 - Historia klienta");
+        System.out.println("11 - Raport zarobków");
+        System.out.println("12 - Pomoc");
+        System.out.println("13 - Zakończ");
+    }
+
+    public static void showOptionsK() {
+        System.out.println("1 - Dodaj Klienta");
+        System.out.println("2 - Zrób rezerwację");
+        System.out.println("3 - Pokaż usługi");
+        System.out.println("4 - Pomoc");
+        System.out.println("5 - Zakończ");
+    }
+
+    public static String login() {
+        System.out.println("Podaj email");
+        String email = scan.nextLine();
+        if (email.equalsIgnoreCase("exit")) return "exit";
+        System.out.println("Podaj haslo");
+        String haslo = scan.nextLine();
+        if (haslo.equalsIgnoreCase("exit")) return "exit";
+        for (Pracownik p : pracownicy) {
+            if (email.equals(p.getEmail()) && haslo.equals(p.getHaslo())) {
+                System.out.println("Login udany!");
+                return "success";
+            }
+        }
+        return "fail";
+    }
+
+
+    public static void dodajProdukt() {
         System.out.println("Podaj nazwe:");
         String nazwa = scan.nextLine();
         String nazwa1 = nazwa.replaceAll(" ", "");
-        while(!isAlphabetic(nazwa1)){
+        while (!isAlphabetic(nazwa1)) {
             System.out.println("Podaj ponownie");
             nazwa = scan.nextLine();
             nazwa1 = nazwa.replaceAll(" ", "");
@@ -131,22 +243,24 @@ public class ZakladFryzjerski {
         System.out.println("Podaj cene:");
         String cena = scan.nextLine();
         String cenaTemp = cena.replaceAll("\\.", "");
-        while (cenaTemp.isEmpty() || !cenaTemp.matches("\\d+")){
+        while (cenaTemp.isEmpty() || !cenaTemp.matches("\\d+")) {
             System.out.println("Podaj ponownie:");
             cenaTemp = scan.nextLine().trim();
             cenaTemp = cenaTemp.replaceAll("\\.", "");
-        } double cena2 = Double.parseDouble(cena);
+        }
+        double cena2 = Double.parseDouble(cena);
 
         System.out.println("Podaj ilosc");
         String ilosc = scan.nextLine();
-        while (ilosc.isEmpty() || !ilosc.matches("\\d+")){
+        while (ilosc.isEmpty() || !ilosc.matches("\\d+")) {
             System.out.println("Podaj ponownie:");
             ilosc = scan.nextLine().trim();
-        } int ilosc2 = Integer.parseInt(ilosc);
+        }
+        int ilosc2 = Integer.parseInt(ilosc);
 
         System.out.println("Podaj kategorie:");
         String kategoria = scan.nextLine();
-        while(!isAlphabetic(kategoria)){
+        while (!isAlphabetic(kategoria)) {
             System.out.println("Podaj ponownie");
             kategoria = scan.nextLine();
         }
@@ -156,11 +270,11 @@ public class ZakladFryzjerski {
         System.out.println("Dodano produkt!");
     }
 
-    public static void usunProdukt(){
+    public static void usunProdukt() {
         System.out.println("Wpisz nazwe produktu:");
         String wybor1 = scan.nextLine();
-        for(Product p : produkty){
-            if(wybor1.equalsIgnoreCase(p.nazwa)){
+        for (Product p : produkty) {
+            if (wybor1.equalsIgnoreCase(p.nazwa)) {
                 produkty.remove(p);
                 System.out.println("Produkt usuniety!");
             }
@@ -221,7 +335,7 @@ public class ZakladFryzjerski {
         }
     }
 
-    static Klient szukajKlient(){
+    static Klient szukajKlient() {
         Klient klient = null;
         System.out.println("Wybierz klienta poprzez imie i nazwisko:");
         while (klient == null) {
@@ -230,10 +344,9 @@ public class ZakladFryzjerski {
             if (pelneImie.equalsIgnoreCase("exit")) {
                 System.out.println("opuszczanie...");
                 return null;
-            } else if (!isAlphabetic(temp1[0]) || !isAlphabetic(temp1[1])){
+            } else if (!isAlphabetic(temp1[0]) || !isAlphabetic(temp1[1])) {
                 System.out.println("Bledne formatowanie, podaj ponownie");
-            }
-            else if (temp1.length == 2) {
+            } else if (temp1.length == 2) {
                 String imie = temp1[0];
                 String nazw = temp1[1];
                 for (Klient k : klienci) {
@@ -247,27 +360,27 @@ public class ZakladFryzjerski {
             } else {
                 System.out.println("Bledne formatowanie, podaj ponownie");
             }
-        } return klient;
+        }
+        return klient;
     }
 
-    static Usluga szukajUsluga(){
+    static Usluga szukajUsluga() {
         System.out.println("Wybierz usluge: [pokaz / exit]");
         Usluga usluga = null;
-        while(usluga == null){
+        while (usluga == null) {
             String wybor = scan.nextLine();
-            if (wybor.equalsIgnoreCase("exit")){
+            if (wybor.equalsIgnoreCase("exit")) {
                 System.out.println("opuszczanie...");
                 return null;
             }
-            if(wybor.equalsIgnoreCase("pokaz")) {
+            if (wybor.equalsIgnoreCase("pokaz")) {
                 System.out.println("::: Lista uslug :::");
-                for(Usluga u : uslugi){
+                for (Usluga u : uslugi) {
                     u.showInfo();
                 }
-            }
-            else {
-                for(Usluga u : uslugi) {
-                    if (u.getNazwa().equalsIgnoreCase(wybor)){
+            } else {
+                for (Usluga u : uslugi) {
+                    if (u.getNazwa().equalsIgnoreCase(wybor)) {
                         usluga = u;
                     }
                 }
@@ -278,15 +391,16 @@ public class ZakladFryzjerski {
                 }
             }
 
-        } return usluga;
+        }
+        return usluga;
     }
 
-    static LocalTime dodajCzas(Usluga usluga){
-        System.out.println("Podaj czas w formacie [XX:XX]");
+    static LocalTime dodajCzas(Usluga usluga) {
+        System.out.println("Podaj czas w formacie [xx:xx]");
         LocalTime czas = null;
-        while(czas == null){
+        while (czas == null) {
             String wybor = scan.nextLine();
-            if (wybor.equalsIgnoreCase("exit")){
+            if (wybor.equalsIgnoreCase("exit")) {
                 System.out.println("Opuszczanie...");
                 return null;
             }
@@ -296,7 +410,7 @@ public class ZakladFryzjerski {
                 int godzina = Integer.parseInt(times[0]);
                 int minuty = Integer.parseInt(times[1]);
                 if (godzina < 24 && minuty < 60) {
-                    if (czyDostepne(godzina, minuty, usluga)){
+                    if (czyDostepne(godzina, minuty, usluga)) {
                         czas = LocalTime.of(godzina, minuty);
                     } else {
                         System.out.println("Nie mozna dodac, termin zajety");
@@ -306,24 +420,26 @@ public class ZakladFryzjerski {
                 }
 
             } else System.out.println("Bledne formatowanie - wybierz ponownie");
-        } return czas;
+        }
+        return czas;
 
     }
 
     static final LocalTime OPENING_TIME = LocalTime.of(9, 0);
     static final LocalTime CLOSING_TIME = LocalTime.of(22, 0);
 
-    static boolean czyDostepne(int godzina, int minuty, Usluga usluga){
+    static boolean czyDostepne(int godzina, int minuty, Usluga usluga) {
         LocalTime start = LocalTime.of(godzina, minuty);
         LocalTime end = start.plusMinutes(usluga.czasTrwania);
-        for(Rezerwacja r : rezerwacje) {
-            if (start.isBefore(r.endTime) && end.isAfter(r.startTime)){
+        for (Rezerwacja r : rezerwacje) {
+            if (start.isBefore(r.endTime) && end.isAfter(r.startTime)) {
                 return false;
             }
         }
         return true;
     }
-    static void klienciGetInfo(){
+
+    static void klienciGetInfo() {
         System.out.println("Podaj kolejno informacje o kliencie:");
 
         System.out.print("Imie: ");
@@ -344,14 +460,15 @@ public class ZakladFryzjerski {
 
         System.out.print("Wiek: ");
         String wiek = scan.nextLine().trim();
-        while (wiek.isEmpty() || !wiek.matches("\\d+")){
+        while (wiek.isEmpty() || !wiek.matches("\\d+")) {
             System.out.println("Podaj ponownie wiek:");
             wiek = scan.nextLine().trim();
-        } int wiek2 = Integer.parseInt(wiek);
+        }
+        int wiek2 = Integer.parseInt(wiek);
 
         System.out.print("Telefon: ");
         String telefon = scan.nextLine().trim().replaceAll(" ", "");
-        while(telefon.length() != 11){
+        while (telefon.length() != 11) {
             System.out.println("Podaj ponownie telefon: ");
             telefon = scan.nextLine().trim().replaceAll(" ", "");
         }
@@ -362,7 +479,92 @@ public class ZakladFryzjerski {
         System.out.println("Klient dodany!");
     }
 
-    static boolean isAlphabetic(String str){
+    public static void dodajPracownika() {
+        System.out.println("Podaj kolejno informacje o pracowniku:");
+
+        System.out.print("Imie: ");
+        String imie = scan.nextLine().trim();
+        while (!isAlphabetic(imie)) {
+            System.out.println("Podaj ponownie imie: ");
+            imie = scan.nextLine().trim();
+        }
+        imie = format(imie);
+
+        System.out.print("Nazwisko: ");
+        String nazwisko = scan.nextLine().trim();
+        while (!isAlphabetic(nazwisko)) {
+            System.out.println("Podaj ponownie nazwisko: ");
+            nazwisko = scan.nextLine().trim();
+        }
+        nazwisko = format(nazwisko);
+
+        System.out.print("Wiek: ");
+        String wiek = scan.nextLine().trim();
+        while (wiek.isEmpty() || !wiek.matches("\\d+")) {
+            System.out.println("Podaj ponownie wiek:");
+            wiek = scan.nextLine().trim();
+        }
+        int wiek2 = Integer.parseInt(wiek);
+
+        System.out.print("Telefon: ");
+        String telefon = scan.nextLine().trim().replaceAll(" ", "");
+        while (telefon.length() != 11) {
+            System.out.println("Podaj ponownie telefon: ");
+            telefon = scan.nextLine().trim().replaceAll(" ", "");
+        }
+
+        System.out.println("Email: ");
+        boolean isTrue = true;
+        int count = 0;
+        String email = "";
+        while (isTrue) {
+            email = scan.nextLine().trim().replaceAll(" ", "");
+            for (Pracownik p : pracownicy) {
+                if (email.equalsIgnoreCase(p.getEmail())) {
+                    System.out.println("Email juz istnieje, podaj inny:");
+                    count++;
+                }
+            }
+            if (count == 0) isTrue = false;
+        }
+        System.out.println("Haslo [wygeneruj]");
+
+        isTrue = true;
+        String haslo = "";
+        while (isTrue) {
+            haslo = scan.nextLine().trim().replaceAll(" ", "");
+            if (haslo.equalsIgnoreCase("wygeneruj")) {
+                haslo = Password.generatePassword();
+                System.out.println(haslo);
+                isTrue = false;
+            } else if (haslo.length() < 3) {
+                System.out.println("Za krotkie haslo, podaj ponownie:");
+            } else isTrue = false;
+        }
+        List<TypUslugi> listaUslug = new ArrayList<>();
+        System.out.println("Dostępne usługi:");
+        for (TypUslugi usluga : TypUslugi.values()) {
+            System.out.println("- " + usluga);
+        }
+        System.out.println("Podaj wybrane usługi, oddzielając je przecinkami:");
+        String input = scan.nextLine();
+        String[] wybraneUslugi = input.split(",");
+        for (String nazwaUslugi : wybraneUslugi) {
+            try {
+                TypUslugi usluga = TypUslugi.valueOf(nazwaUslugi.trim().toUpperCase());
+                listaUslug.add(usluga);
+            } catch (IllegalArgumentException e) {
+                System.out.println("Nieznana usługa: " + nazwaUslugi.trim());
+            }
+        }
+
+        pracownicy.add(new Pracownik(imie, nazwisko, wiek2, telefon, email, haslo, listaUslug));
+        System.out.println("pracownik dodany!");
+
+
+    }
+
+    static boolean isAlphabetic(String str) {
         for (int i = 0; i < str.length(); i++) {
             if (str == null || str.isEmpty()) {
                 return false;
@@ -371,14 +573,15 @@ public class ZakladFryzjerski {
         return str.matches("[a-zA-Z]+");
     }
 
-    static boolean isNumeric(String str){
+    static boolean isNumeric(String str) {
         for (int i = 0; i < str.length(); i++) {
-            if(Character.isDigit(str.charAt(i)) != true) return false;
-        } return true;
+            if (Character.isDigit(str.charAt(i)) != true) return false;
+        }
+        return true;
     }
 
     static String format(String str) {
-        return (String.valueOf(str.charAt(0)).toUpperCase())+ (str.substring(1)).toLowerCase();
+        return (String.valueOf(str.charAt(0)).toUpperCase()) + (str.substring(1)).toLowerCase();
     }
 
     static void dodajInfo() {
@@ -431,23 +634,22 @@ public class ZakladFryzjerski {
 
 
         rezerwacje.add(new Rezerwacja(klient1, usluga7, LocalTime.of(9, 0)));
-        rezerwacje.add(new Rezerwacja(klient2, usluga2, LocalTime.of(10, 0)));
-        rezerwacje.add(new Rezerwacja(klient3, usluga5, LocalTime.of(12, 0)));
-        rezerwacje.add(new Rezerwacja(klient4, usluga3, LocalTime.of(13, 30)));
+//        rezerwacje.add(new Rezerwacja(klient2, usluga2, LocalTime.of(10, 0)));
+//        rezerwacje.add(new Rezerwacja(klient3, usluga5, LocalTime.of(12, 0)));
+//        rezerwacje.add(new Rezerwacja(klient4, usluga3, LocalTime.of(13, 30)));
         rezerwacje.add(new Rezerwacja(klient5, usluga1, LocalTime.of(15, 0)));
-        rezerwacje.add(new Rezerwacja(klient6, usluga6, LocalTime.of(16, 30)));
-        rezerwacje.add(new Rezerwacja(klient7, usluga9, LocalTime.of(17, 30)));
-        rezerwacje.add(new Rezerwacja(klient8, usluga10, LocalTime.of(18, 0)));
+//        rezerwacje.add(new Rezerwacja(klient6, usluga6, LocalTime.of(16, 30)));
+//        rezerwacje.add(new Rezerwacja(klient7, usluga9, LocalTime.of(17, 30)));
+//        rezerwacje.add(new Rezerwacja(klient8, usluga10, LocalTime.of(18, 0)));
         rezerwacje.add(new Rezerwacja(klient9, usluga8, LocalTime.of(19, 30)));
         List<TypUslugi> l = new ArrayList<TypUslugi>();
         l.add(TypUslugi.STRZYZENIE);
         List<TypUslugi> l2 = new ArrayList<TypUslugi>();
         l2.add(TypUslugi.KOLORYZACJA);
         l2.add(TypUslugi.STYLIZACJA);
-        pracownicy.add(new Pracownik("Franek", "Pietrowicz", 53, "48537605268", l));
-        pracownicy.add(new Pracownik("Katarzyna", "Pawlak", 27, "48666621994", l2));
-        pracownicy.add(new Pracownik("Zofia", "Rutkowska", 33, "48781477302", l2));
-
+        pracownicy.add(new Pracownik("Franek", "Pietrowicz", 53, "48537605268", "franekpietrowicz72@gmail.com", "%Aarc&eo0", l));
+        pracownicy.add(new Pracownik("Katarzyna", "Pawlak", 27, "48666621994", "katarzynapawlak98@gmail.com", "lk#Dt3Y9sjY", l2));
+        pracownicy.add(new Pracownik("Zofia", "Rutkowska", 33, "48781477302", "zofiarutkowska92@gmail.com", "87TI*&r2mO", l2));
         produkty.add(new Product("Szampon regenerujący", 45.99, 10, "Szampon"));
         produkty.add(new Product("Odżywka nawilżająca", 39.99, 15, "Odżywka"));
         produkty.add(new Product("Lakier do włosów", 29.99, 20, "Stylizacja"));
