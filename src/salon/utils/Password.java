@@ -1,3 +1,5 @@
+package salon.utils;
+
 import static java.lang.Math.random;
 
 public class Password {
