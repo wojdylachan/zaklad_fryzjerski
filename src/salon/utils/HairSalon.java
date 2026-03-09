@@ -358,15 +358,15 @@ public class HairSalon {
         }
 
         if (foundProduct == null) {
-            System.out.println("Error: Product not found.");
+            System.out.println("Nie znaleziono produktu.");
             return;
         }
 
-        System.out.println("Found: " + foundProduct.getName() + " (Current stock: " + foundProduct.getAmount() + ")");
-        int newAmount = checkInt("Enter new quantity: ");
+        System.out.println("Znaleziono: " + foundProduct.getName() + " (Current stock: " + foundProduct.getAmount() + ")");
+        int newAmount = checkInt("Podaj nową ilość: ");
 
         foundProduct.setAmount(newAmount);
-        System.out.println("Success: Stock updated to " + newAmount);
+        System.out.println("Nows ilość produktu: " + newAmount);
     }
 
     static void statistics() {
